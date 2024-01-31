@@ -5,7 +5,7 @@ The purpose of this document is to:
 
 ## First attempt
 
-Let's see our binary is actually running.  
+Let's see if our binary is actually running.  
 For this, we will assign some numbers to registers.
 
 boot.asm:
@@ -54,3 +54,33 @@ X26=0000000000000000 X27=0000000000000000 X28=0000000000000000
 X29=0000000000000000 X30=0000000000000000  SP=0000000000000000
 PSTATE=400003c5 -Z-- EL1h    FPU disabled
 ```
+
+You can type `quit` to exit.
+```
+(qemu) quit
+```
+
+## Print a single letter
+
+Think of this as a physical embedded board.  
+To see some logs from the board, we usually connect this board to another computer through a UART cable.  
+Then, we open a serial communication program (e.g., putty) to see and talk back to the board.  
+
+The concept is the same.  
+On the board side, UART features are mapped into a *specific* memory address range.  
+The addresses are called *MMIO Register* (do not confuse this with ISA registers like `X0`).  
+The board can send messages by storing the messages in the MMIO registers.
+
+In QEMU, UART is mapped to `0x0900_0000`. See VIRT_UART in https://github.com/qemu/qemu/blob/master/hw/arm/virt.c   
+So, writing `0x0900_0000` will show us some data.
+
+```
+mov x0, #65; 'A'
+mov x1, #0x09000000
+str x0, [x1]
+b .
+```
+
+![image](https://github.com/swkim101/qemu-system-aarch64-baremetal/assets/72803908/e801bb44-b9fb-459f-a085-8aed4b42743b)
+
+Nice.
